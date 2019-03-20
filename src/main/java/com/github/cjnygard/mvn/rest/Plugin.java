@@ -399,6 +399,9 @@ public class Plugin extends AbstractMojo
      */
     @Parameter( defaultValue = "${mojoExecution}", readonly = true )
     private MojoExecution execution;
+    
+    @Parameter( defaultValue = "false", property = "appendFileName" )
+    private boolean appendFileName;
 
     private <T> T getInjectedObject( final T objectOrNull, final String objectName )
     {
@@ -599,6 +602,18 @@ public class Plugin extends AbstractMojo
             getLog().debug( String.format( "Setting resource [%s]", getResource() ) );
             baseTarget = baseTarget.path( getResource() );
         }
+        
+        List<File> files = getFilesToProcess();
+        if ( isAppendFileName()) {
+        	if (files.size() == 1) {
+        		File file = files.iterator().next();
+        		baseTarget = baseTarget.path(file.getName());
+        	} else {
+        		 throw new MojoExecutionException(
+                         String.format( "Excatly one file needs to be specified in conjuction with appendFilename property. %n%s", files.toString()));
+        	}
+        }
+        
         // Load up the query parameters if they exist
         if ( null != getQueryParams() )
         {
@@ -624,8 +639,7 @@ public class Plugin extends AbstractMojo
         getLog().info( String.format( "Endpoint: [%s %s]", getMethod(), baseTarget.getUri() ) );
 
         List<ErrorInfo> errorFiles = new ArrayList<>();
-        List<File> files = getFilesToProcess();
-        if ( (null == files) || (files.size() <= 0) )
+        if ( (null == files) || (files.isEmpty()) )
         {
             if ( !getMethod().equalsIgnoreCase( "GET" ) )
             {
@@ -655,10 +669,10 @@ public class Plugin extends AbstractMojo
             }
         }
 
-        if ( errorFiles.size() > 0 )
+        if ( !errorFiles.isEmpty() )
         {
             throw new MojoExecutionException(
-                    String.format( "Unable to process files:\n%s", wrap( "  ", "\n", errorFiles ) ) );
+                    String.format( "Unable to process files:%n%s", wrap( "  ", "\n", errorFiles ) ) );
         }
     }
 
@@ -824,6 +838,14 @@ public class Plugin extends AbstractMojo
     public void setMethod( String method )
     {
         this.method = method;
+    }
+    
+    public boolean isAppendFileName() {
+    	return appendFileName;
+    }
+
+    public void setAppendFileName(boolean appendFileName) {
+    	this.appendFileName = appendFileName;
     }
 
 }
