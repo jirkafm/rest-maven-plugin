@@ -400,6 +400,15 @@ public class Plugin extends AbstractMojo
     @Parameter( defaultValue = "${mojoExecution}", readonly = true )
     private MojoExecution execution;
     
+    /**
+     * Appends name of file in fileset to the endpoint URL.
+     *
+     * The <code>appendFileName</code> will enhance URL as the file name will be
+     * concatenated onto the <code>endpoint</code> and <code>resource</code> URL
+     * to create the full resource path.
+     *
+     *<p><b>Please note only one file can be specified in fileset.</b></p>
+     */
     @Parameter( defaultValue = "false", property = "appendFileName" )
     private boolean appendFileName;
 
